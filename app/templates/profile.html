@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="content-section">
+
+  <div class="d-flex align-items-center border-bottom pb-4 mb-4">
+    <div class="me-4 position-relative">
+        <img class="rounded-circle account-img"
+         style="width: 120px; height: 120px; object-fit: cover;"
+         src="{{ url_for('static', filename='uploads/' + current_user.user_folder + '/' + current_user.avatar) if current_user.avatar != 'default.jpg' else url_for('static', filename='uploads/default.jpg') }}">
+    </div>
+    <div class="flex-grow-1">
+      <h2 class="account-heading">{{ current_user.username }}</h2>
+      <p class="text-secondary mb-1">{{ current_user.email }}</p>
+      <small class="text-muted">Folder ID: {{ current_user.user_folder }}</small>
+    </div>
+    <div>
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+            <i class="fas fa-user-edit"></i> პროფილის რედაქტირება
+        </button>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4><i class="fas fa-building text-primary"></i> ჩემი კომპანიები</h4>
+      <a href="{{ url_for('new_company') }}" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> დამატება</a>
+  </div>
+
+  {% if current_user.companies %}
+      <div class="table-responsive mb-5">
+        <table class="table table-hover table-bordered bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>ლოგო</th>
+                    <th>სახელი</th>
+                    <th>ვაკანსიები</th>
+                    <th>მოქმედება</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for company in current_user.companies %}
+                <tr>
+                    <td style="width: 60px;">
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.user_folder + '/' + company.logo) if company.logo != 'default_company.jpg' else url_for('static', filename='uploads/default_company.jpg') }}"
+                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;">
+                    </td>
+                    <td>{{ company.name }}</td>
+                    <td><span class="badge bg-secondary">{{ company.jobs|length }}</span></td>
+                    <td>
+                        <a href="{{ url_for('update_company', company_id=company.id) }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="{{ url_for('delete_company', company_id=company.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('დარწმუნებული ხართ? კომპანიასთან ერთად წაიშლება მისი ყველა ვაკანსია!');">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+  {% else %}
+      <div class="alert alert-warning">საიტზე ვაკანსიის განსათავსებლად, ჯერ უნდა დაამატოთ კომპანია.</div>
+  {% endif %}
+
+  <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+    <h4><i class="fas fa-briefcase text-primary"></i> ჩემი ვაკანსიები</h4>
+    {% if current_user.companies %}
+        <a href="{{ url_for('new_job') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> ახალი ვაკანსია</a>
+    {% endif %}
+  </div>
+
+  {% if current_user.companies %}
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>სათაური</th>
+                    <th>კომპანია</th>
+                    <th>სტატუსი</th> <th>გამოქვეყნდა</th>
+                    <th>მოქმედება</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for company in current_user.companies %}
+                    {% for job in company.jobs %}
+                    <tr>
+                        <td><a href="{{ url_for('job_post', job_id=job.id) }}" class="text-decoration-none fw-bold">{{ job.title }}</a></td>
+                        <td>{{ company.name }}</td>
+
+                        <td>
+                            {% if job.is_published %}
+                                <span class="badge bg-success">გამოქვეყნებულია</span>
+                            {% else %}
+                                <span class="badge bg-secondary">დამალულია</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ job.date_posted.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{ url_for('update_job', job_id=job.id) }}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteJobModal{{ job.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+
+                            <div class="modal fade" id="deleteJobModal{{ job.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">ვაკანსიის წაშლა</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            გსურთ წაშალოთ ვაკანსია: <strong>{{ job.title }}</strong>?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">გაუქმება</button>
+                                            <form action="{{ url_for('delete_job', job_id=job.id) }}" method="POST">
+                                                <input class="btn btn-danger" type="submit" value="წაშლა">
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  {% else %}
+    <p class="text-muted">ვაკანსიები ვერ მოიძებნა.</p>
+  {% endif %}
+
+</div>
+
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProfileModalLabel">პროფილის რედაქტირება</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <form method="POST" action="" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {% if form.username.errors %}
+                    {{ form.username(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.username(class="form-control") }}
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {% if form.email.errors %}
+                    {{ form.email(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.email(class="form-control") }}
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.avatar.label(class="form-label") }}
+                {{ form.avatar(class="form-control") }}
+                {% if form.avatar.errors %}
+                    {% for error in form.avatar.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <hr>
+            <p class="text-muted small">პაროლის შეცვლა (თუ შეცვლა არ გსურთ, დატოვეთ ცარიელი)</p>
+
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control") }}
+            </div>
+
+            <div class="d-grid gap-2">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

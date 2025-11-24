@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="content-section p-4 border rounded bg-white shadow-sm">
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">სისტემაში შესვლა</legend>
+
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control") }}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {% if form.password.errors %}
+                            {{ form.password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.password(class="form-control") }}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ form.remember(class="form-check-input") }}
+                        {{ form.remember.label(class="form-check-label") }}
+                    </div>
+                </fieldset>
+
+                <div class="d-grid gap-2">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+
+                <div class="text-center mt-2">
+                    <small class="text-muted">
+                        <a href="#">დაგავიწყდათ პაროლი?</a><br />
+                        სამწუხაროდ პაროლის აღდგენის ფუნქცია არ გვაქვვს.<br />
+                        რაც მოხთა, მოხთა...
+                    </small>
+                </div>
+            </form>
+            <div class="border-top pt-3 mt-3 text-center">
+                <small class="text-muted">
+                    ჯერ არ დარეგისტრირებულხართ? <a class="ml-2" href="{{ url_for('register') }}">გაიარეთ რეგისტრაცია</a>
+                </small>
+                <p>
+                    მომხმარებელი: vano@v.com / giorgi@g.com<br />
+                    პაროლი: 123qwe123qwe
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
