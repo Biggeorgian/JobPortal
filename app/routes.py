@@ -39,9 +39,9 @@ def get_api_data():
             currencies = nbg_res.json()[0]['currencies']
             for cur in currencies:
                 if cur['code'] == 'USD':
-                    data['usd'] = cur['rate']
+                    data['usd'] = round(cur['rate'], 2)
                 elif cur['code'] == 'EUR':
-                    data['eur'] = cur['rate']
+                    data['eur'] = round(cur['rate'], 2)
 
     except Exception as e:
         logging.error(f"API შეცდომა: {e}")
@@ -61,20 +61,20 @@ def home():
     company_filter = request.args.get('company_id', type=int)
     location_filter = request.args.get('location')
 
-    # მოვამზადოთ რექვესტი - მხოლოდ გამოქვეყნებული ვაკანსიები!
+    # წამოვიღოთ მხოლოდ გამოქვეყნებული ვაკანსიები
     query = Job.query.filter_by(is_published=True)
 
-    # თუ მომხმარებელი აირჩევს რამე კატეგორიას
+    # ფილტრი: თუ მომხმარებელი აირჩევს რამე კატეგორიას
     if category_filter:
         query = query.filter_by(category=category_filter)
-    # თუ მომხმარებელი აირჩევს კონკრეტულ კომპანიას
+    # ფილტრი: თუ მომხმარებელი აირჩევს კონკრეტულ კომპანიას
     if company_filter:
         query = query.filter_by(company_id=company_filter)
-    # თუ მომხმარებელი აირჩევს კონკრეტულ ქალაქს
+    # ფილტრი: თუ მომხმარებელი აირჩევს კონკრეტულ ქალაქს
     if location_filter:
         query = query.filter_by(location=location_filter)
 
-    # გავანაწილოთ გვერდებზე ე.წ. პაგინაციის მეთოდით
+    # გავანაწილოთ პოსტები გვერდებზე ე.წ. პაგინაციის მეთოდით
     jobs = query.order_by(Job.date_posted.desc()).paginate(page=page, per_page=5)
 
     # გვერდით სვეტში გამოვიტანოთ აქტიური კატეგორიები და ქალაქები (მხოლოდ გამოქვეყნებული ვაკანსიებიდან)
@@ -177,7 +177,7 @@ def profile():
         current_user.username = form.username.data
         current_user.email = form.email.data
 
-        # პაროლი შევცვალოთ მხოლოდ მაშინ, თუ ეს ველი შეავსო
+        # პაროლი შევცვალოთ მხოლოდ მაშინ, თუ მომხმარებელმა შეავსო პაროლის ველი
         if form.password.data:
             current_user.set_password(form.password.data)
 

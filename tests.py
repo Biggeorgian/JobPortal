@@ -20,13 +20,13 @@ class JobBoardTestCase(unittest.TestCase):
             # ეს ხაზი მოაშორებს ResourceWarning-ს:
             db.engine.dispose()
 
-    # პირველი ტესტი: ვამოწმებთ მთავარ გვერდს
+    # პირველი ტესტი: ვამოწმებთ, იტვირთება თუ არა მთავარი გვერდი
     def test_home_page(self):
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Job Board', response.data)
 
-    # მეორე ტესტი: ვამოწმებთ რეგისტრაციას და ავტორიზაციას
+    # მეორე ტესტი: ვამოწმებთ რეგისტრაციის და ავტორიზაციის ფუნქციებს
     def test_login(self):
         with application.app_context():
             user = User(username='TestUser', email='test@test.com', user_folder='randfold')
@@ -42,7 +42,7 @@ class JobBoardTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'/logout', response.data)
 
-    # მესამე ტესტი: ვამოწმებ, შეიძლება თუ არა სხვისი პოსტის წაშლა
+    # მესამე ტესტი: ვამოწმებთ, შეიძლება თუ არა სხვისი პოსტის წაშლა
     def test_permission_delete(self):
         with application.app_context():
             # შევქმნათ ორი მომხმარებელი და ვცადოთ პოსტის წაშლა
@@ -53,7 +53,7 @@ class JobBoardTestCase(unittest.TestCase):
             db.session.add_all([owner, attacker])
             db.session.commit()
 
-            # შევქმნათ კომპანია და მასტან დაკავშირებული ვაკანსია
+            # შევქმნათ კომპანია და მასთან დაკავშირებული ვაკანსია
             company = Company(name='Comp', address='Add', phone='123', email='c@c.com', user_id=owner.id)
             db.session.add(company)
             db.session.commit()
