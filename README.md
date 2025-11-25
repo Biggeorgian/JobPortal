@@ -2,4 +2,4 @@
 
 ფინალური პროექტი
 
-ცოცხლად ნახვა შეიძლება აქ: [https://jobportal-0tj9.onrender.com](https://biggeorgian.pythonanywhere.com/)
+ცოცხლად ნახვა შეიძლება აქ: https://biggeorgian.pythonanywhere.com/
