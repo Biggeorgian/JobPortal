@@ -24,7 +24,7 @@ class JobBoardTestCase(unittest.TestCase):
     def test_home_page(self):
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'JobBoard', response.data)
+        self.assertIn(b'Job Board', response.data)
 
     # მეორე ტესტი: ვამოწმებთ რეგისტრაციას და ავტორიზაციას
     def test_login(self):
