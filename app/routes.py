@@ -22,17 +22,26 @@ logging.basicConfig(filename='app.log', level=logging.INFO, encoding='utf-8',
 def get_api_data():
     data = {'weather': 'N/A', 'usd': 'N/A', 'eur': 'N/A', 'btc': 'N/A'}
     try:
+        # წამოვიღეთ ამინდი
         weather_res = requests.get(
             'https://api.open-meteo.com/v1/forecast?latitude=41.71&longitude=44.82&current_weather=true')
         if weather_res.status_code == 200:
             data['weather'] = weather_res.json()['current_weather']['temperature']
 
+        # წამოვიღეთ ბიტკოინის ფასი
         crypto_res = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
         if crypto_res.status_code == 200:
             data['btc'] = crypto_res.json()['bitcoin']['usd']
 
-        data['usd'] = 2.75
-        data['eur'] = 3.05
+        # წამოვიღთ NBG-ის დოლარის და ევროს კურსი
+        nbg_res = requests.get('https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json')
+        if nbg_res.status_code == 200:
+            currencies = nbg_res.json()[0]['currencies']
+            for cur in currencies:
+                if cur['code'] == 'USD':
+                    data['usd'] = cur['rate']
+                elif cur['code'] == 'EUR':
+                    data['eur'] = cur['rate']
 
     except Exception as e:
         logging.error(f"API შეცდომა: {e}")
